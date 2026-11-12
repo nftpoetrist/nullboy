@@ -123,8 +123,36 @@ function buildRoom() {
   s += `<circle cx="166" cy="196" r="40" fill="#d9b0ac"/>` + P('134,160 150,146 160,158 144,170', '#d9b0ac') + `<path d="M140 152 128 138" stroke="#d9b0ac" stroke-width="4"/>` +
        P('124,120 128,131 139,128 132,137 140,145 129,144 127,155 121,146 111,150 116,140 107,133 118,131', '#d9b0ac') +
        P('140,190 162,200 160,210 142,204', '#1b1526') + P('192,190 170,200 172,210 190,204', '#1b1526');
-  s += R(262, 122, 114, 152, '#14231c') + R(266, 126, 106, 144, '#182a21') + R(305, 116, 28, 10, '#d8c8a8', 'opacity=".7"') +
-       `<path d="M292 236V162l54 74V162" fill="none" stroke="#c9b9a8" stroke-width="11" stroke-linejoin="round" stroke-linecap="round"/>`;
+  /* holographic N sticker (replaces the green N poster) */
+  s += `<g transform="translate(256 130) rotate(-3 62 62)">
+    <defs>
+      <linearGradient id="gHolo" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#f3b6dc"/><stop offset=".22" stop-color="#b7b4f0"/><stop offset=".45" stop-color="#9fd8f2"/>
+        <stop offset=".62" stop-color="#b9a8ef"/><stop offset=".8" stop-color="#c7f0c8"/><stop offset="1" stop-color="#a99be6"/>
+      </linearGradient>
+      <linearGradient id="gSheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <clipPath id="cHolo"><rect x="0" y="0" width="124" height="124" rx="14"/></clipPath>
+    </defs>
+    <rect x="5" y="7" width="124" height="124" rx="14" fill="#000" opacity=".32"/>
+    <g clip-path="url(#cHolo)">
+      <rect width="124" height="124" fill="url(#gHolo)"/>
+      <polygon points="0,30 70,0 124,0 124,8 0,62" fill="#fff" opacity=".18"/>
+      <polygon points="0,96 124,40 124,58 0,124" fill="#ffd9f2" opacity=".22"/>
+      <polygon points="40,124 124,82 124,104 82,124" fill="#d6fff0" opacity=".28"/>
+      <polygon points="0,0 34,0 0,20" fill="#ff9ad5" opacity=".25"/>
+      <path d="M18 34 52 18M70 104 108 88M86 30 104 22" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>
+      <rect class="holo-sheen" x="-60" y="-20" width="40" height="170" fill="url(#gSheen)" transform="rotate(24 62 62)"/>
+    </g>
+    <g transform="translate(24 24) scale(.76)">
+      <path d="M14 14V86M14 14L86 86M86 14V86" fill="none" stroke="#121014" stroke-width="19" stroke-linecap="round" stroke-linejoin="round"/>
+      <polygon points="23,94 23,68 52,52" fill="#121014"/>
+      <polygon points="77,6 77,32 48,48" fill="#121014"/>
+    </g>
+    <rect x="1.5" y="1.5" width="121" height="121" rx="13" fill="none" stroke="#f4ecd0" stroke-width="3" stroke-dasharray="22 3 9 2 30 4 14 2" opacity=".9"/>
+    <path d="M124 104 L124 124 L104 124 Z" fill="#7d6aa8" opacity=".55"/>
+    <path d="M124 104 Q112 108 104 124 L110 118 Q118 112 124 104Z" fill="#f4ecd0"/>
+    <path d="M104 124 Q114 110 124 104 Q116 116 110 124Z" fill="#e6dcc0"/>
+  </g>`;
   s += R(404, 92, 108, 70, '#3a1a5a') + `<text x="458" y="136" text-anchor="middle" font-family="Silkscreen,monospace" font-weight="700" font-size="24" fill="#ead9bf" transform="skewX(-14)" style="transform-box:fill-box;transform-origin:center">NULLS</text>`;
   s += R(420, 186, 34, 40, '#5a2a7a') + R(462, 196, 30, 36, '#44206a') + R(430, 236, 38, 30, '#6a2a5a') + R(36, 150, 40, 52, '#3a1a52');
 
