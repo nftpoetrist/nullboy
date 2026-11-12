@@ -776,7 +776,7 @@ function drawBackdrop() {
   if (li === 2) {
     /* MIDNIGHT ROOFS — indigo sky, moon, blinking beacons, lit windows */
     for (let k = 0; k < 8; k++) R(0, TOP + k * 24, W, 24, ['#221d57', '#27215f', '#2c2568', '#322a70', '#3a2d78', '#44307c', '#4f327c', '#5a3478'][k]);
-    for (let k = 0; k < 34; k++) { const sx = (hash(k * 91) * 400 - camX * 0.03) % W, sy = TOP + 4 + hash(k * 53 + 7) * 96; if ((tick + k * 13) % 90 > 8) R((sx + W) % W, sy, 1, 1, k % 5 ? '#aab4ff' : '#f2efe8'); }
+    for (let k = 0; k < 34; k++) { const sx = hash(k * 91) * W, sy = TOP + 4 + hash(k * 53 + 7) * 96; if ((tick + k * 37) % 240 > 6) R(sx, sy, 1, 1, k % 5 ? '#aab4ff' : '#f2efe8'); }
     const mx = 70 - camX * 0.03, my = TOP + 40;
     ctx.fillStyle = '#f2efe8'; for (let y = -15; y <= 15; y++) { const hw = Math.sqrt(225 - y * y) | 0; ctx.fillRect((mx - hw) | 0, my + y, hw * 2, 1); }
     ctx.fillStyle = '#27215f'; for (let y = -12; y <= 12; y++) { const hw = Math.sqrt(144 - y * y) | 0; ctx.fillRect((mx + 7 - hw) | 0, my - 4 + y, hw * 2, 1); }
@@ -787,7 +787,7 @@ function drawBackdrop() {
         const h = (layer ? 30 : 60) + hash(i * 31 + 194 + layer * 1000) * (layer ? 52 : 70), x = (i * bw - off) | 0, y = (base - h) | 0;
         R(x, y, bw - 2, h + 34, col);
         if (hash(i * 7 + 5 + layer) > 0.55) { R(x + (bw >> 1) - 1, y - 12, 2, 12, col); if ((tick + i * 23) % 80 < 40) R(x + (bw >> 1) - 2, y - 15, 4, 4, '#ff4a3a'); }
-        for (let wy = y + 5; wy < base - 4; wy += 8) for (let wx = x + 4; wx < x + bw - 7; wx += 7) { const hv = hash(wx * 13 + wy * 57 + i * 3 + 11); if (hv > 0.62) R(wx, wy, 3, 4, hv > 0.9 ? '#ffd98a' : layer ? '#ffb657' : '#c98a52'); }
+        for (let wr = 0, wy = y + 5; wy < base - 4; wy += 8, wr++) for (let wc = 0, wx = x + 4; wx < x + bw - 7; wx += 7, wc++) { const hv = hash(i * 7919 + wr * 131 + wc * 17 + layer * 5003 + 11); if (hv > 0.62) R(wx, wy, 3, 4, hv > 0.9 ? '#ffd98a' : layer ? '#ffb657' : '#c98a52'); }
       }
     }
     return;
@@ -804,8 +804,8 @@ function drawBackdrop() {
       const h = (layer ? 28 : 54) + hash(i * 31 + layer * 1000) * (layer ? 46 : 58);
       const x = (i * bw - off) | 0, y = (base - h) | 0;
       R(x, y, bw - (layer ? 3 : 2), h + 34, col);
-      for (let wy = y + 5; wy < base - 4; wy += 8) for (let wx = x + 4; wx < x + bw - 7; wx += 7)
-      { const hv = hash(wx * 13 + wy * 57 + i * 3); if (hv > 0.55) R(wx, wy, 3, 4, hv > 0.965 ? C.or : (layer ? C.l1 : C.bg)); }
+      for (let wr = 0, wy = y + 5; wy < base - 4; wy += 8, wr++) for (let wc = 0, wx = x + 4; wx < x + bw - 7; wx += 7, wc++)
+      { const hv = hash(i * 7919 + wr * 131 + wc * 17 + layer * 5003); if (hv > 0.55) R(wx, wy, 3, 4, hv > 0.965 ? C.or : (layer ? C.l1 : C.bg)); }
     }
   }
 }

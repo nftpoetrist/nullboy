@@ -334,7 +334,7 @@ function drawRoad() {
     const id = i + Math.floor(off / bw), hh = 14 + hash(id * 31 + ti * 77) * 44, x = i * bw - (off % bw);
     R(x, HY - hh, bw - 2, hh + 1, T.bld);
     ctx.fillStyle = T.lit ? T.acc : T.sky2;
-    for (let wy = HY - hh + 4; wy < HY - 4; wy += 7) for (let wx = x + 3; wx < x + bw - 6; wx += 6) if (hash(id * 17 + wy * 5 + wx) > 0.6) ctx.fillRect(wx | 0, wy | 0, 2, 3);
+    for (let wr = 0, wy = HY - hh + 4; wy < HY - 4; wy += 7, wr++) for (let wc = 0, wx = x + 3; wx < x + bw - 6; wx += 6, wc++) if (hash(id * 7919 + wr * 131 + wc * 17) > 0.6) ctx.fillRect(wx | 0, wy | 0, 2, 3);
   }
   R(0, HY, W, VH / 2, T.g1);
 
