@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>NULL RUN</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <button class="logo" id="homeBtn" aria-label="Home">
+    <svg viewBox="0 0 64 92" width="100%" height="100%">
+      <defs><clipPath id="lgScr"><rect x="13" y="13" width="38" height="34" rx="2"/></clipPath>
+      <linearGradient id="lgBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c8363d"/><stop offset="1" stop-color="#7d151b"/></linearGradient></defs>
+      <path d="M8 2h48a6 6 0 0 1 6 6v64a18 18 0 0 1-18 18H8a6 6 0 0 1-6-6V8a6 6 0 0 1 6-6z" fill="url(#lgBody)" stroke="#f2efe8" stroke-opacity=".55" stroke-width="1.5"/>
+      <path d="M2 9h60" stroke="#4a0a0f" stroke-width="1.2"/>
+      <path d="M10 9h44a3 3 0 0 1 3 3v32a9 9 0 0 1-9 9H10a3 3 0 0 1-3-3V12a3 3 0 0 1 3-3z" fill="#5d5b59"/>
+      <rect x="12" y="12" width="40" height="36" rx="3" fill="#0b0b0d"/>
+      <image href="assets/logo-face.jpg" x="11" y="11" width="42" height="38" preserveAspectRatio="xMidYMid slice" clip-path="url(#lgScr)"/>
+      <rect class="lg-glow" x="13" y="13" width="38" height="34" rx="2" fill="#fff" opacity="0"/>
+      <circle cx="9.500" cy="30" r="1.300" fill="#ff6a2b"/>
+      <circle cx="19" cy="68" r="9" fill="#5f0d13"/>
+      <path d="M16.500 61.500h5v4h4v5h-4v4h-5v-4h-4v-5h4z" fill="#eadfc6"/>
+      <rect x="33" y="58" width="24" height="12" rx="6" transform="rotate(-27 45 64)" fill="#5f0d13"/>
+      <circle cx="40" cy="67" r="4.300" fill="#eadfc6"/><circle cx="50" cy="61.500" r="4.300" fill="#eadfc6"/>
+      <rect x="27" y="80" width="8" height="2.600" rx="1.300" transform="rotate(-27 31 81)" fill="#eadfc6"/><rect x="37" y="80" width="8" height="2.600" rx="1.300" transform="rotate(-27 41 81)" fill="#eadfc6"/>
+    </svg>
+  </button>
+  <div class="top-right">
+    <button id="sndBtn" class="round" aria-label="Sound">
+      <svg viewBox="0 0 24 24" width="22" height="22" shape-rendering="crispEdges">
+        <path d="M3 9h4l5-4v14l-5-4H3z" fill="currentColor"/>
+        <g id="sndOn" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 9v6M18 7v10"/></g>
+        <g id="sndOff" stroke="currentColor" stroke-width="2" fill="none" style="display:none"><path d="M15 9l5 6M20 9l-5 6"/></g>
+      </svg>
+    </button>
+    <button id="menuBtn" class="pill">MENU <span class="plus"></span></button>
+  </div>
+</header>
+
+<section id="home">
+  <div class="room" id="room">
+    <div class="hero" id="hero" role="button" tabindex="0" aria-label="Open the console">
+      <div class="rays"></div><div class="halo"></div>
+      <div class="shadow"></div>
+      <div class="mini-stage"><div class="tilt" id="tilt"><svg class="strap" viewBox="0 0 60 120"><path d="M52 14C30 18 6 50 10 86c2 20 22 22 26 4 6-28 6-56 16-76" fill="none" stroke="#0c0410" stroke-width="5" stroke-linecap="round"/><circle cx="52" cy="14" r="5" fill="none" stroke="#c9a05a" stroke-width="2.5"/></svg></div></div>
+      <div class="cta"><i></i>PRESS START</div>
+    </div>
+  </div>
+  <footer class="home-bar"><span>NULLBOY <em>|</em> 2 CARTS</span><span class="mid">NULL RUN <em>+</em> NULL KART</span><span id="sndHint">CLICK ANYWHERE FOR SOUND <em>|</em> CLICK THE CONSOLE TO PLAY</span></footer>
+  <div class="scan"></div>
+  <div class="flash"></div>
+</section>
+
+<main class="stage">
+  <div class="console">
+    <div class="hinge"></div>
+    <i class="screw s1"></i><i class="screw s2"></i><i class="screw s3"></i><i class="screw s4"></i>
+
+    <div class="bezel">
+      <span class="led"></span>
+      <div class="lcdwrap">
+        <div class="lcd"><canvas id="lcd" width="320" height="216"></canvas></div>
+      </div>
+    </div>
+
+    <div class="side left">
+      <div class="dpad-well">
+        <div class="dpad">
+          <span class="bar h"></span><span class="bar v"></span><span class="dimple"></span>
+          <button data-btn="up" class="d up" aria-label="Up"></button>
+          <button data-btn="down" class="d down" aria-label="Down"></button>
+          <button data-btn="left" class="d left" aria-label="Left"></button>
+          <button data-btn="right" class="d right" aria-label="Right"></button>
+        </div>
+      </div>
+      <div class="engrave">ARROWS / WASD</div>
+      <div class="sticker bomb">
+        <svg viewBox="0 0 64 72" width="100%" height="100%">
+          <path d="M44 6l2 5 5-1-3 4 4 4-5 0 0 5-4-3-4 3 1-5-5-2 5-2z" fill="#ff6a2b" stroke="#f4ecd0" stroke-width="1.5"/>
+          <path d="M34 26q2-10 8-10" stroke="#f4ecd0" stroke-width="5" fill="none"/>
+          <path d="M34 26q2-10 8-10" stroke="#1d1d1a" stroke-width="2.5" fill="none"/>
+          <circle cx="30" cy="46" r="22" fill="#1d1d1a" stroke="#f4ecd0" stroke-width="2.5"/>
+          <rect x="22" y="40" width="4" height="9" rx="2" fill="#f4ecd0"/>
+          <rect x="34" y="40" width="4" height="9" rx="2" fill="#f4ecd0"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="side right">
+      <div class="sticker star">
+        <svg viewBox="0 0 64 64" width="100%" height="100%">
+          <path d="M32 5l8 17 19 2-14 13 4 19-17-10-17 10 4-19L5 24l19-2z" fill="#d8402f" stroke="#f4ecd0" stroke-width="4" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="ab-well">
+        <button data-btn="b" class="ab" aria-label="B - spin"><em>B</em></button>
+        <button data-btn="a" class="ab" aria-label="A - jump"><em>A</em></button>
+      </div>
+      <div class="engrave">X SPIN &nbsp; Z JUMP</div>
+      <div class="ss">
+        <button data-btn="select" class="slant" aria-label="Select"></button>
+        <button data-btn="start" class="slant" aria-label="Start"></button>
+      </div>
+      <div class="engrave small">ESC &nbsp;&nbsp; ENTER</div>
+      <div class="grille"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </div>
+</main>
+
+<script src="home.js"></script>
+<script src="kart.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
