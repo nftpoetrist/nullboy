@@ -3,7 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>NULL RUN</title>
+<title>NULLBOY — NULL RUN + NULL KART</title>
+<meta name="description" content="A fan-made pocket console in the Nulls universe: NULL RUN, a crate-smashing platformer, and NULL KART, an 8-racer kart game.">
+<meta name="theme-color" content="#0b0b0d">
+<meta property="og:title" content="NULLBOY — NULL RUN + NULL KART">
+<meta property="og:description" content="A fan-made pocket console in the Nulls universe. Two carts, eight characters.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='3' y='1' width='10' height='14' rx='2' fill='%23b3262f'/%3E%3Crect x='4.500' y='2.500' width='7' height='6' fill='%23cfdc5a'/%3E%3Crect x='5' y='10.500' width='1' height='3' fill='%23eadfc6'/%3E%3Crect x='4' y='11.500' width='3' height='1' fill='%23eadfc6'/%3E%3Ccircle cx='10.500' cy='11.500' r='1' fill='%23eadfc6'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
@@ -31,7 +36,7 @@
     </svg>
   </button>
   <div class="top-right">
-    <button id="sndBtn" class="round" aria-label="Sound">
+    <button id="sndBtn" class="round" aria-label="Sound"><span class="tap-hint">CLICK FOR SOUND</span>
       <svg viewBox="0 0 24 24" width="22" height="22" shape-rendering="crispEdges">
         <path d="M3 9h4l5-4v14l-5-4H3z" fill="currentColor"/>
         <g id="sndOn" stroke="currentColor" stroke-width="2" fill="none"><path d="M15 9v6M18 7v10"/></g>
@@ -51,7 +56,18 @@
       <div class="cta"><i></i>PRESS START</div>
     </div>
   </div>
-  <footer class="home-bar"><span>NULLBOY <em>|</em> 2 CARTS</span><span class="mid">NULL RUN <em>+</em> NULL KART</span><span id="sndHint">CLICK ANYWHERE FOR SOUND <em>|</em> CLICK THE CONSOLE TO PLAY</span></footer>
+  <footer class="home-bar">
+    <div class="hb-group">
+      <span class="hb-label">OFFICIAL NULLS</span>
+      <a class="chip" href="https://nulls.world" target="_blank" rel="noopener"><svg viewBox="0 0 12 12" width="12" height="12" shape-rendering="crispEdges" aria-hidden="true"><path fill="currentColor" d="M4 0h4v1H4zM2 1h2v1H2zM8 1h2v1H8zM1 2h1v2H1zM10 2h1v2h-1zM0 4h1v4H0zM11 4h1v4h-1zM1 8h1v2H1zM10 8h1v2h-1zM2 10h2v1H2zM8 10h2v1H8zM4 11h4v1H4zM1 5.500h10v1H1zM5.500 1h1v10h-1zM3 2h1v1H3zM3 9h1v1H3zM8 2h1v1H8zM8 9h1v1H8zM2.500 3h1v6h-1zM8.500 3h1v6h-1z"/></svg><span>NULLS.WORLD</span><i class="arr"></i></a>
+      <a class="chip" href="https://x.com/nullsxyz" target="_blank" rel="noopener"><svg viewBox="0 0 10 10" width="10" height="10" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h3l2 3 2-3h3L6.500 5 10 10H7L5 7 3 10H0l3.500-5z" fill="currentColor"/></svg><span>@NULLSXYZ</span><i class="arr"></i></a>
+    </div>
+    <span class="hb-hint" id="sndHint">CLICK THE CONSOLE TO PLAY <em>|</em> 2 CARTS</span>
+    <div class="hb-group">
+      <span class="hb-label">FAN BUILD BY</span>
+      <a class="chip me" href="https://x.com/NftPoetrist" target="_blank" rel="noopener"><svg viewBox="0 0 10 10" width="10" height="10" shape-rendering="crispEdges" aria-hidden="true"><path d="M0 0h3l2 3 2-3h3L6.500 5 10 10H7L5 7 3 10H0l3.500-5z" fill="currentColor"/></svg><span>@NFTPOETRIST</span><i class="arr"></i></a>
+    </div>
+  </footer>
   <div class="scan"></div>
   <div class="flash"></div>
 </section>
@@ -101,7 +117,7 @@
         <button data-btn="b" class="ab" aria-label="B - spin"><em>B</em></button>
         <button data-btn="a" class="ab" aria-label="A - jump"><em>A</em></button>
       </div>
-      <div class="engrave">X SPIN &nbsp; Z JUMP</div>
+      <div class="engrave">B SPIN &nbsp; SPACE JUMP</div>
       <div class="ss">
         <button data-btn="select" class="slant" aria-label="Select"></button>
         <button data-btn="start" class="slant" aria-label="Start"></button>

@@ -150,6 +150,7 @@ function startRace() {
   });
   P = racers[racers.length - 1];
   boxes = []; [0.14, 0.38, 0.62, 0.86].forEach(f => [-0.55, 0, 0.55].forEach(x => boxes.push({ pos: Math.floor(segs.length * f) * SEG + SEG / 2, x, cool: 0 })));
+  order = racers.slice().sort((a, b) => total(b) - total(a));
   traps = []; rockets = []; sparks = []; finOrder = 0; raceT = 0; cd = 200; skyOff = 0; msg = ''; msgT = 0; result = null; warn = 0;
   st = 'count';
 }
@@ -319,7 +320,7 @@ function billboard(img, sc, sx, sy, worldW, clipY, flip) {
   if (flip) { ctx.save(); ctx.translate(Math.round(dx + dw), 0); ctx.scale(-1, 1); ctx.drawImage(img, 0, 0, img.width, img.height * (1 - clipH / dh), 0, Math.round(dy), Math.ceil(dw), Math.ceil(dh - clipH)); ctx.restore(); }
   else ctx.drawImage(img, 0, 0, img.width, img.height * (1 - clipH / dh), Math.round(dx), Math.round(dy), Math.ceil(dw), Math.ceil(dh - clipH));
 }
-function hash(n) { n = (n << 13) ^ n; return ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7fffffff) / 0x7fffffff; }
+function hash(n) { n = Math.imul((n | 0) ^ ((n | 0) >>> 15), 2246822519); n = Math.imul(n ^ (n >>> 13), 3266489917); return ((n ^ (n >>> 16)) >>> 0) / 4294967296; }
 
 function drawRoad() {
   const HY = TOP + VH / 2;
@@ -415,7 +416,7 @@ function drawHud() {
   R(0, H - 12, W, 12, C.ink); R(8, H - 7, 204, 2, C.mid); R(8, H - 10, 1, 8, C.cream); R(211, H - 10, 1, 8, C.cream);
   for (const r of racers) if (r !== P) R(8 + (r.pos / trackLen) * 202, H - 9, 2, 6, C.l2);
   R(7 + (P.pos / trackLen) * 202, H - 10, 4, 8, C.or);
-  if (P.item >= 0 && !P.fin) { if ((t >> 4) & 1) A.txt('SPACE = ' + ITEMS[P.item], W - 8, H - 3, C.or, 8, 'right', true); } else A.txt('X DRIFT', W - 8, H - 3, C.cream, 8, 'right');
+  if (P.item >= 0 && !P.fin) { if ((t >> 4) & 1) A.txt('SPACE = ' + ITEMS[P.item], W - 8, H - 3, C.or, 8, 'right', true); } else { A.txt('B', W - 44, H - 3, C.or, 8, 'right', true); A.txt('DRIFT', W - 8, H - 3, C.cream, 8, 'right'); }
   // drift charge
   if (P.drift) { R(W / 2 - 21, TOP + VH - 66, 42, 5, C.ink); R(W / 2 - 20, TOP + VH - 65, Math.min(40, P.charge * 40 / 110), 3, P.charge >= 110 ? '#e0352b' : P.charge >= 50 ? C.or : C.cream); }
   const ahead = segAt(P.pos + SEG * 16).curve;
@@ -478,7 +479,8 @@ function render() {
     paper(); A.big('GARAGE', W / 2 + 3, TOP + 22, 16, C.ink);
     const col = PAINTS[psel] || CHARS[save.char].kart, locked = PAINT_LV[psel] > level();
     R(104, TOP + 30, 112, 96, C.ink); R(106, TOP + 32, 108, 92, C.l1); R(106, TOP + 104, 108, 20, C.mid); for (let k = 0; k < 6; k++) R(108 + ((k * 20 + t) % 108), TOP + 112, 8, 2, C.cream);
-    ctx.drawImage(mkRear(save.char, col), 160 - 39, TOP + 36 + ((t >> 3) & 1), 78, 78);
+    if (garKey !== save.char + col) { garKey = save.char + col; garImg = mkRear(save.char, col); }
+    ctx.drawImage(garImg, 160 - 39, TOP + 36 + ((t >> 3) & 1), 78, 78);
     PAINTS.forEach((p, i) => { const x = 40 + i * 31; R(x - 2, TOP + 136, 26, 26, i === psel ? C.or : C.ink); R(x, TOP + 138, 22, 22, p || CHARS[save.char].kart); if (PAINT_LV[i] > level()) { R(x + 6, TOP + 146, 10, 8, C.cream); A.txt(String(PAINT_LV[i]), x + 11, TOP + 153, C.ink, 8, 'center'); } if (i === save.paint) R(x + 8, TOP + 164, 6, 3, C.ink); });
     A.txt(PAINT_N[psel] + (locked ? '  -  LOCKED UNTIL LV ' + PAINT_LV[psel] : ''), W / 2, TOP + 182, locked ? '#e0352b' : C.ink, 8, 'center', true);
     bars('BACK', 'PAINT IT');
@@ -517,12 +519,13 @@ function render() {
     if (st === 'pause') { R(W / 2 - 72, TOP + 56, 144, 72, C.ink); R(W / 2 - 70, TOP + 58, 140, 68, C.bg); A.big('PAUSED', W / 2 + 3, TOP + 80, 16, C.ink); ['RESUME', 'QUIT RACE'].forEach((m, i) => { const y = TOP + 98 + i * 14; if (i === pauseI) { R(W / 2 - 58, y - 9, 116, 12, C.ink); A.tri(W / 2 - 52, y - 6, C.or); A.txt(m, W / 2 - 42, y, C.cream, 8, 'left', true); } else A.txt(m, W / 2 - 42, y, C.ink); }); }
   }
 }
-let rearCache = null, rearKey = '';
+let rearCache = null, rearKey = '', garImg = null, garKey = '';
 function mkRearCached() { const k = save.char + '|' + save.paint; if (k !== rearKey) { rearKey = k; rearCache = mkRear(save.char, PAINTS[save.paint] || CHARS[save.char].kart); } return rearCache; }
 
 window.NullKart = {
   init(api) { A = api; ctx = api.ctx; W = api.W; H = api.H; TOP = api.TOP; VH = api.VH; C = api.C; load(); FACE = CHARS.map((_, i) => mkFace(i)); BOX = mkBox(); TRAP = mkTrap(); ROCKET = mkRocket(); },
   enter() { load(); st = 'menu'; mi = 0; },
+  pause() { if (st === 'race' || st === 'count') { st = 'pause'; pauseI = 0; } },
   step, render,
   get state() { return st; }, get hasItem() { return !!P && P.item >= 0; }, get dbg() { return P ? { x: P.x, surf: P.surf, speed: P.speed, curve: segAt(P.pos).curve } : null; }, get place() { return order.indexOf(P) + 1; }
 };

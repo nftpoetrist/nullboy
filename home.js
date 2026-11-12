@@ -260,14 +260,22 @@ function goHome() {
 }
 hero.addEventListener('click', launch);
 window.addEventListener('keydown', e => {
+  if (e.target && e.target.closest && e.target.closest('a,button')) return;   // let links and buttons handle their own keys
   if (visible && (e.code === 'Enter' || e.code === 'Space')) { e.preventDefault(); launch(); }
 });
 const hb = document.getElementById('homeBtn'); if (hb) hb.addEventListener('click', goHome);
+const mb = document.getElementById('menuBtn'); if (mb) mb.addEventListener('click', () => { if (visible) launch(); });
 window.addEventListener('resize', () => { if (visible) layout(); });
 
-// browsers only allow sound after a gesture: start the room music on the first click / key / touch anywhere
-const wakeAudio = () => { const G = window.__nullrun; if (G && G.wake) G.wake(); };
-['pointerdown', 'keydown', 'touchstart'].forEach(ev => window.addEventListener(ev, wakeAudio, { passive: true }));
+// Sound: browsers block audio until the visitor clicks, taps or presses a key. Try right away (works when the
+// browser already trusts the page), otherwise show a small prompt until the first gesture starts the room music.
+const sb = document.getElementById('sndBtn');
+const audioState = () => { const G = window.__nullrun, on = !!(G && G.audioOn); if (sb) sb.classList.toggle('needs-tap', !on); return on; };
+const wakeAudio = () => { const G = window.__nullrun; if (G && G.wake) G.wake(); setTimeout(audioState, 120); };
+['pointerdown', 'pointerup', 'click', 'keydown', 'touchend'].forEach(ev => window.addEventListener(ev, wakeAudio, { passive: true }));
+window.addEventListener('load', () => { wakeAudio(); setTimeout(audioState, 400); });
+// back on the tab: if the browser did not resume sound by itself, show the prompt again (any click resumes it)
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { setTimeout(audioState, 600); setTimeout(audioState, 2000); } });
 
 stage.classList.add('asleep');
 layout();
