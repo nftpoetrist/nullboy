@@ -1144,7 +1144,7 @@ function drawCarts() {
     txt('CART ' + c[2], x + 44, TOP + 164, on ? C.ink : C.mid, 8, 'center', on);
     if (on) tri(x + 40, TOP + 170, C.or);
   });
-  R(0, 0, W, TOP, C.ink); big('NULLBOY', 30, 9, 8, C.cream); R(W - 28, 2, 1, 8, C.or); txt('0' + (cartI + 1), W - 8, 9, C.cream, 8, 'right');
+  R(0, 0, W, TOP, C.ink); big('NULLSCADE', 36, 9, 8, C.cream); R(W - 28, 2, 1, 8, C.or); txt('0' + (cartI + 1), W - 8, 9, C.cream, 8, 'right');
   R(0, H - 12, W, 12, C.ink); txt('ESC HOME', 8, H - 3, C.l2); tri(W - 52, H - 10, C.cream); txt('INSERT', W - 8, H - 3, C.cream, 8, 'right');
 }
 
