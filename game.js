@@ -41,7 +41,7 @@ function initAudio() {
 if (document.addEventListener) {
   document.addEventListener('visibilitychange', () => {
     if (!ac) return;
-    if (document.hidden) { ac.suspend(); if (active && state === 'play') { state = 'pause'; menuI = 0; if (menuBtn) menuBtn.classList.add('open'); } Object.keys(down).forEach(release); }
+    if (document.hidden) { ac.suspend(); if (active && state === 'play') { state = 'pause'; menuI = 0; if (menuBtn) menuBtn.classList.add('open'); } if (active && state === 'city') window.NullCity.pause(); Object.keys(down).forEach(release); }
     else { ac.resume(); nextNote = ac.currentTime + 0.1; }
   });
   window.addEventListener('pagehide', () => { if (ac) ac.suspend(); });
@@ -110,8 +110,8 @@ function scheduleMusic() {
     }
     return;
   }
-  const on = state === 'play' || state === 'title' || state === 'clear' || state === 'win' || state === 'carts' || state === 'kart' || state === 'rsel' || state === 'ssel' || state === 'recs';
-  musicBus.gain.setTargetAtTime(on ? (state === 'play' ? 0.5 : 0.3) : (state !== 'boot' ? 0.08 : 0), ac.currentTime, 0.1);
+  const on = state === 'play' || state === 'title' || state === 'clear' || state === 'win' || state === 'carts' || state === 'kart' || state === 'city' || state === 'rsel' || state === 'ssel' || state === 'recs';
+  musicBus.gain.setTargetAtTime(on ? (state === 'play' ? 0.5 : state === 'city' ? 0.22 : 0.3) : (state !== 'boot' ? 0.08 : 0), ac.currentTime, 0.1);
   while (nextNote < ac.currentTime + 0.12 && guard++ < 4) {
     const s = mStep, bar = (s >> 4) & 3, i = s & 15;
     const root = BASS[bar];
@@ -183,7 +183,7 @@ document.querySelectorAll('[data-btn]').forEach(el => {
 const sndBtn = document.getElementById('sndBtn'), menuBtn = document.getElementById('menuBtn');
 if (sndBtn) sndBtn.addEventListener('click', () => { const fresh = !ac; initAudio(); if (!fresh || muted) setMuted(!muted); sndBtn.blur(); });
 if (menuBtn) menuBtn.addEventListener('click', () => { menuBtn.blur(); if (!active) return; initAudio(); hit.select = true; });
-cv.addEventListener('pointerdown', () => { if (!active) return; initAudio(); if (state !== 'play') hit.start = true; });
+cv.addEventListener('pointerdown', () => { if (!active) return; initAudio(); if (state !== 'play' && !(state === 'city' && window.NullCity.state === 'play')) hit.start = true; });
 
 /* ----------------------------- levels ----------------------------- */
 function mk(name, width, fn) {
@@ -629,10 +629,13 @@ function step() {
     if (stT > 170 || (stT > 40 && (hit.start || hit.a))) { state = 'carts'; sfx.ok(); }
   } else if (state === 'carts') {
     if (hit.select) { sfx.sel(); if (window.__nullhome) window.__nullhome.goHome(); for (const k in hit) hit[k] = false; return; }
-    if (hit.left || hit.right || hit.up || hit.down) { cartI ^= 1; sfx.sel(); }
-    if (hit.a || hit.start) { sfx.ok(); if (cartI === 1 && window.NullKart) { window.NullKart.enter(); state = 'kart'; } else state = 'title'; }
+    if (hit.left || hit.up) { cartI = (cartI + 2) % 3; sfx.sel(); }
+    if (hit.right || hit.down) { cartI = (cartI + 1) % 3; sfx.sel(); }
+    if (hit.a || hit.start) { sfx.ok(); if (cartI === 2 && window.NullKart) { window.NullKart.enter(); state = 'kart'; } else if (cartI === 0 && window.NullCity) { window.NullCity.enter(); state = 'city'; } else state = 'title'; }
   } else if (state === 'kart') {
     window.NullKart.step();
+  } else if (state === 'city') {
+    window.NullCity.step();
   } else if (state === 'title') {
     if (hit.up) { titleI = (titleI + TMENU.length - 1) % TMENU.length; sfx.sel(); }
     if (hit.down) { titleI = (titleI + 1) % TMENU.length; sfx.sel(); }
@@ -1128,22 +1131,92 @@ function drawBoot() {
   if (stT < 18) { const h = (H / 2) * (1 - stT / 18); R(0, 0, W, h, C.ink); R(0, H - h, W, h, C.ink); }
 }
 
+/* ---- cart select: three boxed games, each with its own illustrated cover ---- */
+const COVERS = [
+  { n: '01', name: 'NULL CITY', genre: 'OPEN CITY',  line: 'WALK, DRIVE, RUN JOBS. THE CITY IS YOURS.' },
+  { n: '02', name: 'NULL RUN',  genre: 'PLATFORMER', line: 'SMASH CRATES. 3 STAGES. 8 RUNNERS.' },
+  { n: '03', name: 'NULL KART', genre: 'RACING',     line: 'DRIFT, BOOST, ROCKETS. 8 RACERS.' }
+];
+let kartRears = null;
+const cdisc = (cx, cy, r, col, slit) => { ctx.fillStyle = col; for (let y = -r; y <= r; y++) { if (slit && y > -r * .2 && ((y + r) % 5) > 2) continue; const w = Math.floor(Math.sqrt(r * r - y * y)); ctx.fillRect((cx - w) | 0, (cy + y) | 0, w * 2, 1); } };
+const ctitle = (a, b, cx, y, c1, c2) => { big(a, cx + 1, y + 1, 16, C.ink); big(a, cx, y, 16, c1); big(b, cx + 7, y + 15, 16, C.ink); big(b, cx + 6, y + 14, 16, c2); };
+function coverRun(ax, ay, t) {
+  ['#ff6a2b', '#ff8442', '#ff9a5a', '#ffb36b', '#ffc98a', '#f6dcae', '#f6dcae', '#f6dcae'].forEach((c, i) => R(ax, ay + i * 11, 82, 11, c));
+  cdisc(ax + 58, ay + 52, 21, '#fff3d0');
+  [[0, 13, 36], [15, 9, 50], [26, 15, 28], [43, 11, 42], [56, 9, 32], [67, 15, 48]].forEach(([x, w, h], k) => { R(ax + x, ay + 80 - h, w, h, '#b5522e'); R(ax + x, ay + 80 - h, w, 1, '#d98058'); for (let j = 0; j < 4; j++) if ((k * 7 + j * 3) % 5 < 3) R(ax + x + 2 + (j % 2) * 5, ay + 84 - h + ((j >> 1) * 9), 2, 3, '#ffd98a'); });
+  R(ax - 2, ay + 46, 13, 34, C.ink); R(ax + 70, ay + 54, 14, 26, C.ink); R(ax + 73, ay + 58, 3, 3, C.or); R(ax + 78, ay + 66, 3, 3, '#ffd98a'); R(ax + 2, ay + 52, 3, 3, '#ffd98a'); for (let k = 0; k < 3; k++) R(ax + 11, ay + 56 + k * 8, 6, 1, C.ink);
+  R(ax, ay + 80, 82, 20, C.ink); R(ax, ay + 80, 82, 2, '#6f6d68'); for (let x = 3; x < 82; x += 12) R(ax + x, ay + 90, 6, 1, '#3a3a36');
+  const crate = (x, y, hot) => { R(x, y, 15, 15, '#5a3418'); R(x + 1, y + 1, 13, 13, hot ? C.or : '#d99a4a'); R(x + 1, y + 1, 13, 1, hot ? '#ffb27a' : '#f0c078'); R(x + 1, y + 7, 13, 1, '#5a3418'); R(x + 7, y + 1, 1, 13, '#5a3418'); if (hot) { R(x + 5, y + 4, 5, 2, C.cream); R(x + 8, y + 6, 2, 3, C.cream); R(x + 7, y + 11, 2, 2, C.cream); } };
+  crate(ax + 50, ay + 65); crate(ax + 65, ay + 65); crate(ax + 57, ay + 50, true);
+  const bob = Math.round(Math.sin(t / 16) * 3);
+  for (let k = 0; k < 3; k++) R(ax + 1, ay + 52 + k * 9 + bob, 9 - k * 2, 1, C.cream);
+  ctx.save(); ctx.translate(ax + 9, ay + 30 + bob); ctx.scale(3, 3); drawHero(0, 0, 1, { ground: false, vy: -1, run: 0, ci: 0, blink: t % 170 > 164 }); ctx.restore();
+  for (let k = 0; k < 9; k++) { const x = ax + ((k * 29 + 7) % 80), y = ay + 98 - ((t / 2 + k * 23) % 96); R(x, y, 2, 2, k & 1 ? '#fff0c8' : '#ffe27a'); }
+  ctitle('NULL', 'RUN', ax + 33, ay + 16, C.cream, C.cream);
+}
+function coverKart(ax, ay, t) {
+  ['#2a3a62', '#3f5486', '#6a78b4', '#b9a8ef', '#f2a0b8', '#ffc9a8'].forEach((c, i) => R(ax, ay + i * 8, 82, 8, c));
+  cdisc(ax + 41, ay + 48, 15, '#fff0c8', true);
+  [[0, 10, 12], [10, 8, 20], [18, 12, 9], [52, 10, 16], [62, 8, 10], [70, 12, 22]].forEach(([x, w, h]) => { R(ax + x, ay + 48 - h, w, h, '#2a3a62'); R(ax + x + 2, ay + 51 - h, 2, 2, '#ffd98a'); });
+  const hz = ay + 48;
+  for (let r = 0; r < 52; r++) {
+    const k = r / 51, w = 8 + k * 78, cx = ax + 41, sp = (((1 / (k + .09)) * 2.4 + t / 5) | 0) & 1;
+    R(ax, hz + r, 82, 1, sp ? '#58c59a' : '#4bb48a');
+    R(cx - w / 2 - 2 - k * 4, hz + r, w + 4 + k * 8, 1, sp ? C.red : C.cream);
+    R(cx - w / 2, hz + r, w, 1, sp ? '#6f6d68' : '#64625d');
+    if (sp) R(cx - 1 - k, hz + r, 2 + k * 2, 1, C.cream);
+  }
+  R(ax + 4, ay + 22, 2, 30, C.ink); R(ax + 76, ay + 22, 2, 30, C.ink);
+  for (let x = 0; x < 70; x += 5) { const dy = Math.round(Math.sin(x / 11 + t / 14) * 1.5); for (let rr = 0; rr < 2; rr++) R(ax + 6 + x, ay + 30 + rr * 5 + dy, 5, 5, ((x / 5 + rr) & 1) ? C.ink : C.cream); }
+  if (!kartRears && window.NullKart && window.NullKart.rear) kartRears = [0, 4, 1].map(i => window.NullKart.rear(i));
+  if (kartRears) {
+    ctx.drawImage(kartRears[1], ax + 20, hz + 1, 14, 14); ctx.drawImage(kartRears[2], ax + 48, hz + 7, 19, 19);
+    const wob = Math.round(Math.sin(t / 9) * 2);
+    R(ax + 18 + wob, ay + 95, 46, 4, 'rgba(29,29,26,.4)'); ctx.drawImage(kartRears[0], ax + 15 + wob, ay + 46, 52, 52);
+  }
+  for (let k = 0; k < 6; k++) { const y = ay + 54 + ((k * 13 + t * 2) % 44), l = 4 + (k % 3) * 3; R(ax + (k & 1 ? 76 - l : 2), y, l, 1, C.cream); }
+  ctitle('NULL', 'KART', ax + 36, ay + 15, C.cream, '#ffe27a');
+}
+function coverCity(ax, ay, t) {
+  ['#2a1458', '#4a1a78', '#8a2a90', '#d84a84', '#f0707a', '#ff9a6a', '#ffc46b'].forEach((c, i) => R(ax, ay + i * 9, 82, 9, c));
+  for (let k = 0; k < 8; k++) if ((t / 20 + k) % 5 > 1) R(ax + ((k * 37 + 5) % 80), ay + ((k * 11) % 16), 1, 1, '#f7c4d4');
+  cdisc(ax + 54, ay + 63, 22, '#ffe27a', true);
+  [[26, 9, 22], [36, 7, 34], [44, 11, 18], [56, 8, 28], [65, 9, 40], [75, 9, 24]].forEach(([x, w, h], k) => { R(ax + x, ay + 63 - h, w, h, '#4a1668'); for (let j = 0; j < 5; j++) if ((k * 5 + j * 7) % 4 < 2) R(ax + x + 1 + (j % 2) * 4, ay + 66 - h + (j >> 1) * 7, 2, 2, (t >> 5) % 5 === j ? '#f0707a' : '#ffd98a'); });
+  R(ax, ay + 63, 82, 14, '#33125e'); for (let k = 0; k < 5; k++) { const w = 20 - k * 3; R(ax + 54 - w + ((t / 12 + k * 3) % 3 | 0), ay + 65 + k * 2, w * 2, 1, k & 1 ? '#ff9a6a' : '#f0707a'); }
+  R(ax, ay + 77, 82, 23, '#1c0b33'); R(ax, ay + 77, 82, 1, '#6a2488'); for (let x = 2; x < 82; x += 14) R(ax + x, ay + 90, 7, 1, '#4a1e78');
+  for (let k = 0; k < 40; k++) R(ax + 76 - ((k * k / 130) | 0), ay + 77 - k, 2, 1, '#12061f');
+  [[-1, 0], [1, 0], [-1, -1], [1, -1], [-1, 1], [0, -1]].forEach(([dx, dy]) => { for (let k = 1; k < 8; k++) R(ax + 64 + dx * k * 2, ay + 37 + dy * k + ((k * k) >> 4), 3, 2, '#12061f'); });
+  const hx = ax + 62 + Math.round(Math.sin(t / 40) * 4), hy = ay + 34;
+  ctx.fillStyle = 'rgba(255,240,190,.28)'; ctx.beginPath(); ctx.moveTo(hx, hy + 3); ctx.lineTo(hx - 22, hy + 44); ctx.lineTo(hx - 6, hy + 46); ctx.fill();
+  R(hx - 4, hy - 2, 9, 5, '#12061f'); R(hx + 5, hy - 1, 7, 1, '#12061f'); R(hx + 11, hy - 3, 1, 4, '#12061f'); R(hx - 3, hy - 1, 3, 2, '#7f9fd8'); R(hx - 9 + ((t >> 1) & 1) * 3, hy - 4, 14, 1, '#f2efe8');
+  R(ax + 30, ay + 82, 54, 9, '#2a1244'); R(ax + 42, ay + 75, 26, 8, '#2a1244'); R(ax + 45, ay + 77, 9, 5, '#7a4ab0'); R(ax + 56, ay + 77, 9, 5, '#7a4ab0'); R(ax + 30, ay + 82, 54, 1, '#d64fb0'); R(ax + 80, ay + 84, 3, 2, '#ffe9b0');
+  cdisc(ax + 40, ay + 92, 5, '#0c0514'); cdisc(ax + 40, ay + 92, 2, '#6f6d68'); cdisc(ax + 72, ay + 92, 5, '#0c0514'); cdisc(ax + 72, ay + 92, 2, '#6f6d68');
+  if (window.NullCity && window.NullCity.hero) ctx.drawImage(window.NullCity.hero(), ax - 4, ay + 21 + Math.round(Math.sin(t / 30)), 48, 80);
+  ctitle('NULL', 'CITY', ax + 50, ay + 15, C.cream, C.or);
+}
+function drawCover(i, x, y, on) {
+  const c = COVERS[i];
+  R(x + 4, y + 5, 88, 124, 'rgba(29,29,26,.22)');
+  R(x - 2, y - 2, 92, 128, on ? C.or : C.ink); R(x, y, 88, 124, C.ink);
+  ctx.save(); ctx.beginPath(); ctx.rect(x + 3, y + 12, 82, 100); ctx.clip();
+  [coverCity, coverRun, coverKart][i](x + 3, y + 12, on ? tick : 0);
+  ctx.fillStyle = 'rgba(255,255,255,.1)'; ctx.beginPath(); ctx.moveTo(x + 3, y + 12); ctx.lineTo(x + 34, y + 12); ctx.lineTo(x + 3, y + 62); ctx.fill();   // plastic case shine
+  ctx.restore();
+  R(x + 4, y + 3, 6, 6, C.or); R(x + 5, y + 4, 4, 4, C.ink); R(x + 6, y + 5, 2, 2, C.or);
+  txt('NULLSCADE', x + 13, y + 9, C.cream); txt(c.n, x + 85, y + 9, C.or, 8, 'right', true);
+  txt(c.genre, x + 44, y + 121, on ? C.cream : C.l2, 8, 'center');
+  R(x + 1, y + 1, 1, 122, '#55534e');
+  if (!on) R(x - 2, y - 2, 92, 128, 'rgba(216,214,207,.42)');
+}
 function drawCarts() {
   R(0, TOP, W, VH, C.bg); ctx.fillStyle = C.l1; for (let y = TOP + 2; y < TOP + VH; y += 4) ctx.fillRect(0, y, W, 1);
-  big('INSERT A CART', W / 2 + 3, TOP + 24, 16, C.ink);
-  [['NULL RUN', 'PLATFORMER', '01'], ['NULL KART', 'RACING', '02']].forEach((c, i) => {
-    const on = i === cartI, x = 52 + i * 128, y = TOP + 40 - (on ? 5 + ((tick >> 4) & 1) : 0), body = on ? C.or : C.l2;
-    R(x - 2, y - 2, 92, 108, C.ink); R(x, y, 88, 104, body); R(x, y, 5, 5, C.ink); R(x + 83, y, 5, 5, C.ink); R(x, y, 88, 3, on ? '#ff9a5a' : C.l1);
-    for (let k = 0; k < 4; k++) R(x + 41 - k * 3, y + 10 + k * 3, 6 + k * 6, 3, C.ink);
-    R(x - 2, y + 44, 6, 4, C.ink); R(x - 2, y + 54, 6, 4, C.ink); R(x + 84, y + 44, 6, 4, C.ink); R(x + 84, y + 54, 6, 4, C.ink);
-    R(x + 8, y + 34, 72, 50, C.ink); R(x + 10, y + 36, 68, 46, C.cream);
-    if (i === 0) drawHero(x + 37, y + 40, 1, { ground: true, run: on ? tick : 0, vy: 0 });
-    else { R(x + 30, y + 50, 28, 8, C.blue); R(x + 26, y + 48, 7, 12, C.ink); R(x + 55, y + 48, 7, 12, C.ink); R(x + 38, y + 40, 12, 11, C.ink); R(x + 37, y + 37, 3, 4, C.ink); R(x + 48, y + 37, 3, 4, C.ink); R(x + 40, y + 44, 3, 2, C.cream); R(x + 46, y + 44, 3, 2, C.cream); }
-    txt(c[0], x + 44, y + 68, C.ink, 8, 'center', true); txt(c[1], x + 44, y + 78, C.mid, 8, 'center');
-    R(x + 12, y + 90, 64, 10, C.ink); for (let k = 0; k < 8; k++) R(x + 15 + k * 7.6, y + 92, 4, 6, '#e8c04a');
-    txt('CART ' + c[2], x + 44, TOP + 164, on ? C.ink : C.mid, 8, 'center', on);
-    if (on) tri(x + 40, TOP + 170, C.or);
-  });
+  big('INSERT A CART', W / 2 + 3, TOP + 19, 16, C.ink);
+  COVERS.forEach((c, i) => { if (i !== cartI) drawCover(i, 14 + i * 101, TOP + 30, false); });
+  drawCover(cartI, 14 + cartI * 101, TOP + 25 - ((tick >> 4) & 1), true);
+  const c = COVERS[cartI];
+  txt(c.line, W / 2, TOP + 172, C.ink, 8, 'center', true);
+  COVERS.forEach((q, i) => R(W / 2 - 13 + i * 10, TOP + 180, 6, 4, i === cartI ? C.or : C.l2));
+  if ((tick >> 4) & 1) { tri(W / 2 + 24, TOP + 180, C.ink); ctx.save(); ctx.translate(W / 2 - 24, TOP + 180); ctx.scale(-1, 1); tri(0, 0, C.ink); ctx.restore(); }
   R(0, 0, W, TOP, C.ink); big('NULLSCADE', 36, 9, 8, C.cream); R(W - 28, 2, 1, 8, C.or); txt('0' + (cartI + 1), W - 8, 9, C.cream, 8, 'right');
   R(0, H - 12, W, 12, C.ink); txt('ESC HOME', 8, H - 3, C.l2); tri(W - 52, H - 10, C.cream); txt('INSERT', W - 8, H - 3, C.cream, 8, 'right');
 }
@@ -1152,6 +1225,7 @@ function render() {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   if (state === 'boot') { drawBoot(); return; }
   if (state === 'kart') { window.NullKart.render(); return; }
+  if (state === 'city') { window.NullCity.render(); return; }
   if (state === 'carts') { drawCarts(); return; }
   if (state === 'title') drawTitle();
   else if (state === 'rsel') drawRsel();
@@ -1208,6 +1282,7 @@ function frame(t) {
 }
 setMuted(muted);
 if (window.NullKart) window.NullKart.init({ ctx, W, H, TOP, VH, C, down, hit, R, txt, big, tri, sfx, tone, noise, store, exit() { state = 'carts'; } });
+if (window.NullCity) window.NullCity.init({ ctx, W, H, TOP, VH, C, down, hit, R, txt, big, tri, sfx, tone, noise, store, exit() { state = 'carts'; } });
 loadLevel(0); state = 'title'; // warm up so title has valid world state
 let started = false;
 const go = () => { if (started) return; started = true; requestAnimationFrame(frame); };
@@ -1223,11 +1298,11 @@ window.__nullrun = {
   boot() {
     active = true; initAudio();
     // coming back from the room with a game in progress: pick up where it was left instead of rebooting the console
-    if (state === 'kart' || state === 'pause' || state === 'clear' || state === 'over' || state === 'win') { if (state === 'pause' && menuBtn) menuBtn.classList.add('open'); return; }
+    if (state === 'kart' || state === 'city' || state === 'pause' || state === 'clear' || state === 'over' || state === 'win') { if (state === 'pause' && menuBtn) menuBtn.classList.add('open'); return; }
     state = 'boot'; stT = 0; sfx.boot();
   },
-  kart: window.NullKart,
+  kart: window.NullKart, city: window.NullCity,
   get world() { return { L, crates, enemies, lives, score, shield }; }, setRunner(i) { runner = i; RC = RUNNERS[i]; }, startGame,
-  sleep() { if (state === 'play' || state === 'dying') state = 'pause'; if (state === 'kart' && window.NullKart.pause) window.NullKart.pause(); if (state === 'boot') state = 'carts'; active = false; Object.keys(down).forEach(release); if (menuBtn) menuBtn.classList.remove('open'); if (state === 'pause') { menuI = 0; } },
+  sleep() { if (state === 'play' || state === 'dying') state = 'pause'; if (state === 'kart' && window.NullKart.pause) window.NullKart.pause(); if (state === 'city') window.NullCity.pause(); if (state === 'boot') state = 'carts'; active = false; Object.keys(down).forEach(release); if (menuBtn) menuBtn.classList.remove('open'); if (state === 'pause') { menuI = 0; } },
   step, press, release, get state() { return state; }, get p() { return p; }, get level() { return li; }, loadLevel, LEVEL_DEFS, render };
 })();

@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 /* =====================================================================
-   NULL KART — cart 02. Pseudo-3D kart racer for the pocket LCD.
+   NULL KART — cart 03. Pseudo-3D kart racer for the pocket LCD.
    8 racers · 3 laps · drift + turbo · rocket / shield / trap / turbo
    ===================================================================== */
 let A, ctx, W, H, TOP, VH, C;
@@ -396,7 +396,7 @@ function drawRoad() {
 }
 
 function bars(l, r) {
-  R(0, 0, W, TOP, C.ink); A.big('NULL KART', 34, 9, 8, C.cream); R(W - 28, 2, 1, 8, C.or); A.txt('02', W - 8, 9, C.cream, 8, 'right');
+  R(0, 0, W, TOP, C.ink); A.big('NULL KART', 34, 9, 8, C.cream); R(W - 28, 2, 1, 8, C.or); A.txt('03', W - 8, 9, C.cream, 8, 'right');
   R(0, H - 12, W, 12, C.ink); A.txt(l, 8, H - 3, C.l2);
   ctx.font = '8px Silkscreen, monospace'; A.tri(W - 14 - ctx.measureText(r).width, H - 10, C.cream); A.txt(r, W - 8, H - 3, C.cream, 8, 'right');
 }
@@ -411,7 +411,7 @@ function drawHud() {
   A.txt('LAP', 66, 9, C.l2); A.txt(Math.min(LAPS, Math.max(1, P.lap + 1)) + '/' + LAPS, 88, 9, C.cream, 8, 'left', true);
   A.txt(fmt(raceT), 176, 9, C.cream, 8, 'right');
   A.txt('ITEM', 196, 9, C.l2); R(224, 1, 58, 10, P.item >= 0 ? C.or : '#33322e'); A.txt(P.item >= 0 ? ITEMS[P.item] : '---', 253, 9, P.item >= 0 ? C.ink : C.mid, 8, 'center', true);
-  R(W - 28, 2, 1, 8, C.or); A.txt('02', W - 8, 9, C.cream, 8, 'right');
+  R(W - 28, 2, 1, 8, C.or); A.txt('03', W - 8, 9, C.cream, 8, 'right');
   // lap progress strip
   R(0, H - 12, W, 12, C.ink); R(8, H - 7, 204, 2, C.mid); R(8, H - 10, 1, 8, C.cream); R(211, H - 10, 1, 8, C.cream);
   for (const r of racers) if (r !== P) R(8 + (r.pos / trackLen) * 202, H - 9, 2, 6, C.l2);
@@ -527,6 +527,7 @@ window.NullKart = {
   enter() { load(); st = 'menu'; mi = 0; },
   pause() { if (st === 'race' || st === 'count') { st = 'pause'; pauseI = 0; } },
   step, render,
+  rear(i) { return mkRear(i, CHARS[i].kart); },   // rear-view kart sprite, used on the cart cover
   get state() { return st; }, get hasItem() { return !!P && P.item >= 0; }, get dbg() { return P ? { x: P.x, surf: P.surf, speed: P.speed, curve: segAt(P.pos).curve } : null; }, get place() { return order.indexOf(P) + 1; }
 };
 })();
