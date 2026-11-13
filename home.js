@@ -171,9 +171,24 @@ function buildRoom() {
   for (let ry = 0; ry < 3; ry++) for (let k = 0; k < 13; k++) s += R(306 + k * 16.4 - ry * 3, 473 + ry * 6, 12 + ry, 4, '#b99484');
   s += R(62, 424, 46, 46, '#e9dac8') + R(62, 424, 14, 46, '#bfa9a0') + E(85, 425, 23, 6, '#3a1c1c') + `<path d="M108 434c16 0 16 26 0 26" fill="none" stroke="#e9dac8" stroke-width="6"/>` +
        P('126,474 158,472 162,488 128,490', '#e8c04a') + P('244,476 270,474 274,488 248,490', '#e8c04a') + R(176, 474, 70, 8, '#3a1a5a') + R(180, 466, 66, 8, '#6a2a5a') + R(184, 458, 60, 8, '#2a3a8a');
-  s += R(206, 736, 12, 124, '#4a1a2a') + R(384, 736, 12, 124, '#4a1a2a') + R(238, 736, 10, 92, '#35122a') + R(358, 736, 10, 92, '#35122a') +
-       P('236,520 364,512 372,690 228,690', '#b85c3e') + P('300,516 364,512 372,690 300,690', '#8c3c36') + P('252,546 348,540 352,650 248,650', '#9c4838') +
-       P('210,690 392,690 404,722 198,722', '#c86e46') + R(198, 722, 206, 14, '#7a2f34');
+  /* easel with the "Grand Theft Nullscade" canvas (replaces the chair) */
+  s += E(306, 872, 150, 12, '#000', 'opacity=".45"') +
+       P('300,500 312,500 320,846 292,846', '#35122a') +                                   /* back leg */
+       P('296,496 312,496 214,872 196,872', '#8e3c30') + P('304,496 312,496 214,872 206,872', '#b5522e') +   /* left leg */
+       P('300,496 316,496 418,872 400,872', '#8e3c30') + P('300,496 308,496 408,872 400,872', '#b5522e') +   /* right leg */
+       R(234, 780, 140, 10, '#58202e') + R(234, 780, 140, 4, '#8e3c30') +                /* lower brace */
+       R(284, 492, 44, 22, '#58202e') + R(288, 494, 36, 6, '#b5522e');                    /* top clamp */
+  s += `<g transform="rotate(-1.2 306 618)">
+    <rect x="166" y="526" width="284" height="174" fill="#000" opacity=".4" transform="translate(6 8)"/>
+    <rect x="166" y="526" width="284" height="174" fill="#1c0a1e"/>
+    <rect x="170" y="530" width="276" height="166" fill="#58202e"/>
+    <rect x="176" y="536" width="264" height="154" fill="#ead9bf"/>
+    <image href="assets/grand-theft-nullscade.jpg" x="182" y="542" width="252" height="142" preserveAspectRatio="xMidYMid slice"/>
+    <polygon points="182,542 300,542 182,620" fill="#fff" opacity=".07"/>
+    <rect x="182" y="542" width="252" height="142" fill="none" stroke="#000" stroke-opacity=".35" stroke-width="2"/>
+  </g>`;
+  s += R(150, 690, 312, 14, '#58202e') + R(150, 688, 312, 6, '#b5522e') + R(150, 704, 312, 3, '#000', 'opacity=".3"');   /* ledge */
+  s += R(176, 680, 34, 8, '#ff6a2b') + R(206, 682, 8, 4, '#c8b89a') + R(392, 682, 46, 5, '#1d1d1a') + R(432, 680, 10, 9, '#ead9bf') + R(388, 681, 8, 7, '#d64fb0');   /* paint tube + brush */
 
   /* --- rug --- */
   s += P('420,640 1240,640 1400,892 280,892', '#2f1552') + P('450,656 1214,656 1352,876 322,876', 'none', 'stroke="#8a2a3c" stroke-width="5"') + P('482,672 1184,672 1306,860 366,860', 'none', 'stroke="#4a2480" stroke-width="3"');
@@ -238,10 +253,13 @@ function buildRoom() {
 
   /* --- pile of pogs in the corner --- */
   const pog = (x, y, sc, k, rot) => `<g transform="translate(${x} ${y})"><ellipse cy="${5 * sc}" rx="${46 * sc}" ry="${20 * sc}" fill="#b29c86"/><g transform="scale(${sc} ${sc * 0.43}) rotate(${rot}) translate(-50 -50)">${POGS[k]}<circle cx="50" cy="50" r="46" fill="none" stroke="${rim}" stroke-width="5"/></g></g>`;
-  s += E(210, 868, 190, 16, '#000', 'opacity=".4"');
-  s += pog(96, 846, 0.9, 5, 0) + pog(300, 838, 0.95, 1, 30) + pog(384, 868, 0.8, 4, 0) + pog(70, 880, 0.8, 0, 10);
-  [[0, 2], [1, 4], [2, 3], [3, 0], [4, 2]].forEach(([k, a]) => s += pog(190 + (k % 2) * 5, 866 - k * 8, 1.05, a, k * 40));
-  s += pog(292, 876, 1.0, 3, -20) + `<g class="wob">` + pog(140, 800, 0.7, 2, 0) + `</g>`;
+  /* pogs scattered on the floor, bottom-left (kept small and dim so they don't pull focus) */
+  const pogShadow = (x, y, sc) => E(x + 3, y + 8 * sc, 48 * sc, 18 * sc, '#000', 'opacity=".35"');
+  const pogBack = (x, y, sc) => `<g transform="translate(${x} ${y})"><ellipse cy="${5 * sc}" rx="${46 * sc}" ry="${20 * sc}" fill="#8a7464"/><ellipse rx="${46 * sc}" ry="${20 * sc}" fill="#cdb79c"/><ellipse rx="${30 * sc}" ry="${13 * sc}" fill="none" stroke="#a8907a" stroke-width="2"/></g>`;
+  s += '<g opacity=".8">' +
+       [[110, 792, .6], [62, 822, .55], [160, 816, .5], [88, 750, .5], [172, 762, .45], [262, 824, .5], [352, 818, .5]].map(([x, y, sc]) => pogShadow(x, y, sc)).join('') +
+       pog(110, 792, 0.6, 2, 15) + pog(113, 786, 0.6, 5, 70) + pog(62, 822, 0.55, 0, 40) + pog(160, 816, 0.5, 3, -60) +
+       pogBack(88, 750, 0.5) + pog(172, 762, 0.45, 1, 120) + pog(262, 824, 0.5, 4, -25) + pogBack(352, 818, 0.5) + '</g>';
 
   /* --- light pools --- */
   s += `<g style="mix-blend-mode:screen"><circle cx="656" cy="420" r="420" fill="url(#gLamp)" class="lampglow"/><circle cx="286" cy="350" r="230" fill="url(#gCrt)"/><circle cx="820" cy="400" r="250" fill="url(#gTv)" class="flick2"/></g>`;
